@@ -1,11 +1,13 @@
 import sys
 import os
+import subprocess
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QFileDialog, QAction, 
-                             QVBoxLayout, QWidget, QPushButton, QGridLayout, QScrollArea, QHBoxLayout)
+                             QVBoxLayout, QWidget, QPushButton, QGridLayout, 
+                             QScrollArea, QHBoxLayout,QDialog,QFormLayout,QLineEdit,QDialogButtonBox)
 from PyQt5.QtGui import QPixmap
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
-
+import json
 
 from PIL import Image
 
@@ -39,16 +41,46 @@ class ComicViewer(QMainWindow):
         self.central_widget.setLayout(self.main_layout)
         self.setCentralWidget(self.central_widget)  
 
+        # Create the File menu and add actions to it
+        file_menu = self.menuBar().addMenu("File")
+
+        # Add an action to open a directory
         self.open_action = QAction("Open Directory", self)
         self.open_action.triggered.connect(self.open_directory)
-        self.menuBar().addMenu("File").addAction(self.open_action)
+        file_menu.addAction(self.open_action)
 
-        self.all_files = {}
+        # Add an action to connect to the network
+        self.connect_action = QAction("Connect to Network", self)
+        self.connect_action.triggered.connect(self.connect_to_network)
+        file_menu.addAction(self.connect_action)
         
-    def open_directory(self):
-        directory_path = QFileDialog.getExistingDirectory(self, "Open comic directory")
+        self.all_files = {}
+        # Load the file history
+        self.load_history()
+
+        # Open the last accessed directory if available
+        self.open_last_directory()
+
+    
+    def load_history(self):
+        try:
+            with open('file_history.json', 'r') as f:
+                self.file_history = json.load(f)
+        except FileNotFoundError:
+            self.file_history = {}
+        
+    def save_history(self):
+        with open('file_history.json', 'w') as f:
+            json.dump(self.file_history, f)
+
+    def open_directory(self, mount_point=None):
+        directory_path = mount_point if mount_point else QFileDialog.getExistingDirectory(self, "Open comic directory")
         
         if directory_path:
+            # Save to history
+            self.file_history[directory_path] = True
+            self.save_history()
+            
             for root, _, files in os.walk(directory_path):
                 comic_files = [file for file in files if file.lower().endswith(('.png','.jpg'))]
                 
@@ -60,6 +92,54 @@ class ComicViewer(QMainWindow):
                     self.all_files[group_name] = [os.path.join(root, file) for file in comic_files]
             
             self.display_comics()
+
+    def open_last_directory(self):
+        if self.file_history:
+            last_directory = list(self.file_history.keys())[-1]  # Assuming the last item is the most recently added
+            self.open_directory(mount_point=last_directory)
+
+    def connect_to_network(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle('Connect to Network')
+
+        layout = QFormLayout()
+
+        # Fields for entering network share details
+        network_path_edit = QLineEdit()
+        username_edit = QLineEdit()
+        password_edit = QLineEdit()
+        password_edit.setEchoMode(QLineEdit.Password)
+
+        layout.addRow('Network Path:', network_path_edit)
+        layout.addRow('Username:', username_edit)
+        layout.addRow('Password:', password_edit)
+
+        # Buttons to confirm or cancel
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        layout.addRow(button_box)
+
+        dialog.setLayout(layout)
+
+        # Show dialog and wait for user
+        result = dialog.exec_()
+
+        if result == QDialog.Accepted:
+            network_path = network_path_edit.text()
+            username = username_edit.text()
+            password = password_edit.text()
+            # Add your logic to connect to the network share here
+            self.mount_drive(network_path, username, password)
+            self.open_directory(mount_point=r'Z:')
+
+    def mount_drive(self, network_path, username, password):
+        mount_point = r'Z:'  # Or any unused drive letter
+        network_path=r'\\192.168.0.1\USB_SanDisk32Gen1_1_3316\Milftoon_SiteRip_032021'
+        username='admin'
+        password=''
+        print(f'net use {mount_point} {network_path} /user:{username} {password}')
+        subprocess.run(f'net use {mount_point} {network_path} /user:{username} {password}', shell=True)
 
 
         
