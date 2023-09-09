@@ -28,7 +28,7 @@ python main.py
 - Favorites & Bookmarks: Mark comics or specific pages for easy access later.
 - Metadata Display: Display comic metadata, such as author and publication year.
 - Dark Mode: Introduce a dark mode for night reading.
-- Fullscreen & Zoom: Enhanced reading with fullscreen mode and zoom functionalities.
+- Fullscreen & Zoom: Enhanced reading with fullscreen mode and zoom functionalities. --zoom impleented
 - Rating & Recommendations: Rate comics and get recommendations based on preferences.
 - Reading History & Offline Reading: Track reading history and allow offline reading capabilities.
 - Support for More File Formats: Add support for .jpeg, .bmp, .gif, .cbr, and .cbz.
