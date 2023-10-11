@@ -82,7 +82,7 @@ class ComicViewer(QMainWindow):
             self.save_history()
             
             for root, _, files in os.walk(directory_path):
-                comic_files = [file for file in files if file.lower().endswith(('.png','.jpg','.cvi'))]
+                comic_files = [file for file in files if file.lower().endswith(('.png','.jpg'))]
                 
                 # Use the custom_sort function
                 comic_files.sort(key=custom_sort)
