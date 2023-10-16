@@ -1,16 +1,23 @@
-# Use a base image
-FROM python:3.8
+FROM python:3.8-alpine
 
-# Set work directory
+USER root
+
 WORKDIR /app
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Git and tools
+RUN apt-get update && \
+    apt-get install -y git zip && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy the application
-COPY . .
+RUN git config --global --add safe.directory /app
 
-# Run the application
-CMD ["python", "comic_viewer.py"]
+# Clone the Git repository
+RUN git clone https://github.com/eliasedwin7/comicviewer.git /app
 
+# Install Python requirements
+RUN pip install --requirement /app/requirements.txt
+
+# Set execute permissions on start script
+RUN chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]
