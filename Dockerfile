@@ -5,9 +5,7 @@ USER root
 WORKDIR /app
 
 # Install Git and tools
-RUN apt-get update && \
-    apt-get install -y git zip && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk --no-cache add git zip
 
 RUN git config --global --add safe.directory /app
 
