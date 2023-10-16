@@ -1,0 +1,19 @@
+FROM python:3.8-slim
+
+WORKDIR /app
+
+# Install system packages
+RUN apt-get update && \
+    apt-get install -y git x11-xserver-utils libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Clone the repository
+RUN git clone https://github.com/eliasedwin7/comicviewer.git /app
+
+# Install Python requirements
+RUN pip install --no-cache-dir --requirement /app/requirements.txt
+
+# Set execute permissions on start script
+RUN chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]

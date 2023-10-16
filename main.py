@@ -31,7 +31,7 @@ class LoginDialog(QDialog):
         username = self.username_field.text()
         password = self.password_field.text()
         # Replace the following line with your authentication logic
-        if username == 'admin' and password == 'password':
+        if username == 'admin' and password == 'pass':
             self.accept()
         else:
             QMessageBox.warning(self, 'Error', 'Bad user or password')

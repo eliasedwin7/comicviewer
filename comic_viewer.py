@@ -54,6 +54,16 @@ class ComicViewer(QMainWindow):
         self.connect_action.triggered.connect(self.connect_to_network)
         file_menu.addAction(self.connect_action)
         
+        # Add the search bar
+        self.search_bar = QLineEdit(self)
+        self.search_bar.textChanged.connect(self.start_search_timer)
+        self.main_layout.addWidget(self.search_bar)
+
+        self.search_timer = QtCore.QTimer(self)
+        self.search_timer.setSingleShot(True)
+        self.search_timer.timeout.connect(self.perform_search)
+        
+
         self.all_files = {}
         # Load the file history
         self.load_history()
@@ -61,7 +71,8 @@ class ComicViewer(QMainWindow):
         # Open the last accessed directory if available
         self.open_last_directory()
 
-    
+    def start_search_timer(self):
+        self.search_timer.start(300)
     def load_history(self):
         try:
             with open('file_history.json', 'r') as f:
@@ -89,9 +100,30 @@ class ComicViewer(QMainWindow):
                 
                 if comic_files:
                     group_name = os.path.basename(root)
+                    
+                    # Check for parent directory and prepend its name
+                    parent_name = os.path.basename(os.path.dirname(root))
+                    if parent_name and parent_name != os.path.basename(directory_path):  
+                        group_name = parent_name + " - " + group_name
+                    
                     self.all_files[group_name] = [os.path.join(root, file) for file in comic_files]
             
             self.display_comics()
+            
+    def perform_search(self):
+        query = self.search_bar.text().lower()
+        matching_comics = {k: v for k, v in self.all_files.items() if query in k.lower()}
+        
+        print("Matching comics:", matching_comics.keys())  # This line is for debugging
+        
+        # Clear the current comics display
+        for i in reversed(range(self.grid_layout.count())):
+            widget = self.grid_layout.itemAt(i).widget()
+            widget.setParent(None)
+        
+        # Display only the matching comics
+        self.display_comics(comics_to_display=matching_comics)
+
 
     def open_last_directory(self):
         if self.file_history:
@@ -145,8 +177,14 @@ class ComicViewer(QMainWindow):
         
 
 
-    def display_comics(self):
-        for index, (group_name, files) in enumerate(self.all_files.items()):
+    def display_comics(self, comics_to_display=None):
+        if comics_to_display is None:
+            comics_to_display = self.all_files
+        # Clear the current comics display
+        for i in reversed(range(self.grid_layout.count())):
+                widget = self.grid_layout.itemAt(i).widget()
+                widget.setParent(None)
+        for index, (group_name, files) in enumerate(comics_to_display.items()):
             container = QWidget(self)
             layout = QVBoxLayout(container)
             
@@ -178,11 +216,17 @@ class ComicViewer(QMainWindow):
             container.setLayout(layout)
             
             self.grid_layout.addWidget(container, index // 4, index % 4)
+        # Update the layouts and central widget
+        self.scroll_widget.setLayout(self.grid_layout)
+        self.central_widget.setLayout(self.main_layout)
+        self.setCentralWidget(self.central_widget)
+
 
 
     def view_comic(self, files):
         self.comic_window = ComicWindow(files, self)
         self.comic_window.show()
+        #self.comic_window.showFullScreen()
 
     def open_next_comic(self):
         current_comic_key = next((key for key, value in self.all_files.items() if value == self.comic_window.files), None)

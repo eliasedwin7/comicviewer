@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt, QSize
 class ComicWindow(QMainWindow):
     def __init__(self, files, parent=None):
         super().__init__(parent)
-        self.setGeometry(100, 100, 1000, 700)
+        self.setGeometry(100, 100, 1000, 900)
         self.parent = parent
         self.setWindowTitle("Comic Viewer")
 
