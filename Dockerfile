@@ -1,25 +1,19 @@
-FROM python:3.8-alpine
+# Use the official Python image which is based on Debian
+FROM python:3.10
 
-USER root
-
+# Set work directory
 WORKDIR /app
 
-# Install Git, tools, and build dependencies
-RUN apk --no-cache add git zip \
-    && apk --no-cache add --virtual build-deps build-base libffi-dev openssl-dev
+# Copy your application code and other necessary files including the build script
+COPY . /app/
 
-RUN git config --global --add safe.directory /app
+# Install PyInstaller and the zip utility
+RUN apt-get update && \
+    apt-get install -y zip && \
+    pip install pyinstaller
 
-# Clone the Git repository
-RUN git clone https://github.com/eliasedwin7/comicviewer.git /app
+# Ensure the build script is executable
+RUN chmod +x /app/start.sh  # Or /app/build.sh if you've renamed it
 
-# Install Python requirements
-RUN pip install --requirement /app/requirements.txt
-
-# Remove build dependencies to reduce image size
-RUN apk del build-deps
-
-# Set execute permissions on start script
-RUN chmod +x /app/start.sh
-
-CMD ["/app/start.sh"]
+# By default, run the build script
+CMD ["/app/start.sh"]  # Or /app/build.sh if using build.sh
