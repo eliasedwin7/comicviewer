@@ -1,9 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication
-from comic_viewer import ComicViewer
-
-
+from comic_viewer import EnhancedComicViewer
 from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QVBoxLayout, QPushButton, QApplication, QMessageBox
+
 
 class LoginDialog(QDialog):
     def __init__(self):
@@ -42,11 +40,11 @@ def main():
     login_dialog = LoginDialog()
 
     if login_dialog.exec_() == QDialog.Accepted:
-        viewer = ComicViewer()  # Assuming ComicViewer is your main application window
+        # Assuming ComicViewer is your main application window
+        viewer = EnhancedComicViewer()
         viewer.show()
         sys.exit(app.exec_())
 
+
 if __name__ == "__main__":
     main()
-
-

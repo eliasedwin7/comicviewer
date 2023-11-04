@@ -1,1 +1,5 @@
 output/
+file_history.json
+.pyc
+.bak
+__pycache__/comic_window.cpython-310.pyc
