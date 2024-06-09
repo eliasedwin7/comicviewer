@@ -1,3 +1,0 @@
-auto-py-to-exe
-PyQt5
-Pillow

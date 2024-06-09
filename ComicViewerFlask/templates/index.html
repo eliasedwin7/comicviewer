@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Comic Library</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            margin: 20px 0;
+            font-size: 36px;
+            color: #333;
+        }
+        .comic-series {
+            margin-bottom: 40px;
+            width: 100%;
+            text-align: center;
+        }
+        .series-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .comic-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            justify-content: center;
+        }
+        .comic-item {
+            text-align: center;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comic-item img {
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        .comic-item p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .logout-link {
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .logout-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Comic Library</h1>
+    <div class="comic-container">
+        {% for series, comics in comics_by_series.items() %}
+            {% if comics %}
+                <div class="comic-item">
+                    <a href="{{ url_for('view_comic', comic_id=comics[0].id) }}">
+                        <img src="{{ url_for('static', filename=comics[0].path) }}" alt="{{ comics[0].name }}">
+                        <p>{{ series }}</p>
+                    </a>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+</body>
+</html>

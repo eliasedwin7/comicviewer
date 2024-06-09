@@ -1,6 +1,7 @@
-output/
-file_history.json
-.pyc
-.bak
+ComicViewerPyqt5/output/
+*.json
+*.pyc
+*.bak
 __pycache__/comic_window.cpython-310.pyc
-build/
+ComicViewerPyqt5/build/
+ComicViewerFlask/static/

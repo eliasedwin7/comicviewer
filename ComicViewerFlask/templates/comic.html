@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ series }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        h1 {
+            margin: 20px 0;
+            font-size: 24px;
+        }
+        .comic-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin-bottom: 10px;
+            transition: transform 0.2s ease;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .navigation-buttons a,
+        .navigation-buttons button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .navigation-buttons a:hover,
+        .navigation-buttons button:hover {
+            background-color: #0056b3;
+        }
+        .zoom-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .zoom-buttons button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .zoom-buttons button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ series }}</h1>
+    <div id="comic-container">
+        {% if segment %}
+            {% if panel_images %}
+                <img id="comic-image" src="{{ url_for('static', filename=panel_images[0]) }}" alt="Panel 1" class="comic-image">
+            {% endif %}
+        {% else %}
+            {% if pages %}
+                <img id="comic-image" src="{{ url_for('static', filename=pages[0].path) }}" alt="Page 1" class="comic-image">
+            {% endif %}
+        {% endif %}
+    </div>
+    <div class="navigation-buttons">
+        <button onclick="previousPage()">Previous Page</button>
+        <button onclick="nextPage()">Next Page</button>
+        <a id="prev-comic-link" href="{{ url_for('previous_comic', comic_id=current_comic_id, segment=segment) }}">Previous Comic</a>
+        <a id="next-comic-link" href="{{ url_for('next_comic', comic_id=current_comic_id, segment=segment) }}">Next Comic</a>
+    </div>
+    <div class="zoom-buttons">
+        <button onclick="zoomIn()">Zoom In</button>
+        <button onclick="zoomOut()">Zoom Out</button>
+    </div>
+    <br>
+    <a href="{{ url_for('view_comic', comic_id=current_comic_id, segment=not segment) }}">
+        {{ 'View Entire Page' if segment else 'View Segmented Panels' }}
+    </a>
+    <br>
+    <a href="{{ url_for('index') }}">Back to Library</a>
+
+    <script>
+        let currentPageIndex = 0;
+        const images = {{ (panel_images if segment else pages)|tojson }};
+        const comicImage = document.getElementById('comic-image');
+        const prevComicLink = document.getElementById('prev-comic-link');
+        const nextComicLink = document.getElementById('next-comic-link');
+
+        function updateComicImage() {
+            if (images.length > 0) {
+                comicImage.src = `{{ url_for('static', filename='') }}${images[currentPageIndex].path || images[currentPageIndex]}`;
+                comicImage.alt = `{{ 'Panel' if segment else 'Page' }} ${currentPageIndex + 1}`;
+                comicImage.style.transform = `scale(1)`;
+                comicImage.style.maxHeight = '90vh';
+                comicImage.style.width = 'auto';
+            }
+        }
+
+        function nextPage() {
+            if (currentPageIndex < images.length - 1) {
+                currentPageIndex++;
+                updateComicImage();
+            }
+        }
+
+        function previousPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                updateComicImage();
+            }
+        }
+
+        function zoomIn() {
+            let currentScale = parseFloat(comicImage.style.transform.replace('scale(', '').replace(')', '')) || 1;
+            comicImage.style.transform = `scale(${currentScale + 0.1})`;
+        }
+
+        function zoomOut() {
+            let currentScale = parseFloat(comicImage.style.transform.replace('scale(', '').replace(')', '')) || 1;
+            if (currentScale > 0.2) {
+                comicImage.style.transform = `scale(${currentScale - 0.1})`;
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowRight':
+                    nextPage();
+                    break;
+                case 'ArrowLeft':
+                    previousPage();
+                    break;
+                case 'ArrowUp':
+                    window.location.href = prevComicLink.href;
+                    break;
+                case 'ArrowDown':
+                    window.location.href = nextComicLink.href;
+                    break;
+                case '+':
+                case '=': // For cases where shift is not pressed
+                    zoomIn();
+                    break;
+                case '-':
+                case '_': // For cases where shift is pressed
+                    zoomOut();
+                    break;
+            }
+        });
+
+        // Adjust initial comic image size to fit the screen
+        window.onload = function() {
+            comicImage.style.maxHeight = '90vh';
+            comicImage.style.width = 'auto';
+        }
+
+        // Add mouse wheel zoom functionality
+        comicImage.addEventListener('wheel', function(event) {
+            if (event.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        });
+    </script>
+</body>
+</html>

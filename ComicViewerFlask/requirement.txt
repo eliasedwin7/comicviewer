@@ -1,0 +1,9 @@
+Flask
+Werkzeug
+Pillow
+PyQt5
+imageio 
+scikit-image 
+scipy 
+numpy 
+pillow
