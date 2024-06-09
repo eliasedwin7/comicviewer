@@ -1,0 +1,14 @@
+docker build -t comicviewer-builder .
+docker stop comicviewer-instance
+docker rm comicviewer-instance
+
+docker run --name comicviewer-instance comicviewer-builder
+docker cp comicviewer-instance:/app/ComicViewer.zip D:\Usefullpython\ComicViewer\output\
+
+
+
+#windows
+
+pyinstaller --noconfirm --onedir --icon=comic_logo.ico --name=ComicViewer main.py --distpath 
+pyinstaller --noconfirm --onedir --windowed --icon=comic_logo.ico --name=ComicViewer main.py --distpath output/
+
