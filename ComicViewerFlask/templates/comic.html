@@ -17,6 +17,7 @@
         h1 {
             margin: 20px 0;
             font-size: 24px;
+            color: #333;
         }
         .comic-image {
             max-width: 100%;
@@ -29,17 +30,19 @@
             display: flex;
             justify-content: center;
             margin: 20px 0;
+            gap: 10px;
         }
         .navigation-buttons a,
         .navigation-buttons button {
             padding: 10px 20px;
-            margin: 0 10px;
             background-color: #007bff;
             color: white;
             text-decoration: none;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            transition: background-color 0.3s ease;
         }
         .navigation-buttons a:hover,
         .navigation-buttons button:hover {
@@ -49,18 +52,38 @@
             display: flex;
             justify-content: center;
             margin-top: 20px;
+            gap: 10px;
         }
         .zoom-buttons button {
             padding: 10px 20px;
-            margin: 0 10px;
             background-color: #28a745;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            transition: background-color 0.3s ease;
         }
         .zoom-buttons button:hover {
             background-color: #218838;
+        }
+        .back-link {
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .toggle-link {
+            margin-top: 10px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .toggle-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -88,11 +111,11 @@
         <button onclick="zoomOut()">Zoom Out</button>
     </div>
     <br>
-    <a href="{{ url_for('view_comic', comic_id=current_comic_id, segment=not segment) }}">
+    <a href="{{ url_for('view_comic', comic_id=current_comic_id, segment=not segment) }}" class="toggle-link">
         {{ 'View Entire Page' if segment else 'View Segmented Panels' }}
     </a>
     <br>
-    <a href="{{ url_for('index') }}">Back to Library</a>
+    <a href="{{ url_for('index') }}" class="back-link">Back to Library</a>
 
     <script>
         let currentPageIndex = 0;
