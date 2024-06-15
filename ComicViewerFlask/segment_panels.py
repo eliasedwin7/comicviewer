@@ -1,4 +1,3 @@
-# segment_panels.py
 from pathlib import Path
 import imageio
 from skimage.color import rgb2gray
@@ -6,13 +5,13 @@ from skimage.feature import canny
 from skimage.morphology import dilation
 from scipy import ndimage as ndi
 from skimage.measure import label, regionprops
-from skimage.color import label2rgb
 import numpy as np
 from PIL import Image
+from io import BytesIO
+import base64
 
-def segment_panels(image_path, output_folder):
+def segment_panels(image_path):
     image_path = Path(image_path)
-    output_folder = Path(output_folder)
     im = imageio.imread(image_path)
     grayscale = rgb2gray(im)
     edges = canny(grayscale)
@@ -51,11 +50,13 @@ def segment_panels(image_path, output_folder):
         if area < 0.01 * im.shape[0] * im.shape[1]:
             del panels[i]
 
-    panel_img = np.zeros_like(labels)
-    for i, bbox in enumerate(panels, start=1):
-        panel_img[bbox[0]:bbox[2], bbox[1]:bbox[3]] = i
-
+    panel_images = []
     for i, bbox in enumerate(panels):
         panel = im[bbox[0]:bbox[2], bbox[1]:bbox[3]]
         panel_image = Image.fromarray(panel)
-        panel_image.save(output_folder / f'panel_{i}.png')
+        buffered = BytesIO()
+        panel_image.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        panel_images.append(f"data:image/png;base64,{img_str}")
+
+    return panel_images

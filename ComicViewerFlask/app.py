@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, abort
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from pathlib import Path
 from main import ComicLibrary
 from segment_panels import segment_panels
@@ -48,13 +48,8 @@ def view_comic(comic_id):
     panel_images = []
 
     if segment:
-        panel_folder = Path('static/panels') / str(comic_id)
-        full_panel_folder = Path(app.root_path) / panel_folder
-        full_panel_folder.mkdir(parents=True, exist_ok=True)
-        if not any(full_panel_folder.iterdir()):  # Check if directory is empty
-            image_path = Path(app.root_path) / app.config['COMICS_FOLDER'] / comic['path']
-            segment_panels(image_path, full_panel_folder)
-        panel_images = [str(panel_folder / f) for f in sorted(full_panel_folder.iterdir())]
+        image_path = Path(app.root_path) / 'static' / comic['path']
+        panel_images = segment_panels(image_path)
 
     return render_template(
         'comic.html', 
@@ -80,10 +75,6 @@ def previous_comic(comic_id):
     if prev_comic:
         return redirect(url_for('view_comic', comic_id=prev_comic['id'], segment=request.args.get('segment', 'false')))
     return redirect(url_for('index'))
-
-@app.route('/static/<path:filename>')
-def custom_static(filename):
-    return send_from_directory('static', filename)
 
 if __name__ == '__main__':
     app.run(debug=True)

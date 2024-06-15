@@ -69,7 +69,7 @@
     <div id="comic-container">
         {% if segment %}
             {% if panel_images %}
-                <img id="comic-image" src="{{ url_for('static', filename=panel_images[0]) }}" alt="Panel 1" class="comic-image">
+                <img id="comic-image" src="{{ panel_images[0] }}" alt="Panel 1" class="comic-image">
             {% endif %}
         {% else %}
             {% if pages %}
@@ -96,6 +96,7 @@
 
     <script>
         let currentPageIndex = 0;
+        const segment = {{ 'true' if segment else 'false' }};
         const images = {{ (panel_images if segment else pages)|tojson }};
         const comicImage = document.getElementById('comic-image');
         const prevComicLink = document.getElementById('prev-comic-link');
@@ -103,7 +104,8 @@
 
         function updateComicImage() {
             if (images.length > 0) {
-                comicImage.src = `{{ url_for('static', filename='') }}${images[currentPageIndex].path || images[currentPageIndex]}`;
+                const imageSrc = segment ? images[currentPageIndex] : `{{ url_for('static', filename='') }}${images[currentPageIndex].path || images[currentPageIndex]}`;
+                comicImage.src = imageSrc;
                 comicImage.alt = `{{ 'Panel' if segment else 'Page' }} ${currentPageIndex + 1}`;
                 comicImage.style.transform = `scale(1)`;
                 comicImage.style.maxHeight = '90vh';
@@ -115,6 +117,8 @@
             if (currentPageIndex < images.length - 1) {
                 currentPageIndex++;
                 updateComicImage();
+            } else {
+                window.location.href = nextComicLink.href;
             }
         }
 
@@ -122,6 +126,8 @@
             if (currentPageIndex > 0) {
                 currentPageIndex--;
                 updateComicImage();
+            } else {
+                window.location.href = prevComicLink.href;
             }
         }
 
